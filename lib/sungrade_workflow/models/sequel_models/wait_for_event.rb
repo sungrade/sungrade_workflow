@@ -75,6 +75,7 @@ module SungradeWorkflow
                   set(status: "pending")
                 end
               else
+                set(status: "rolling_back")
                 dispatch_and_make_available!(**opts)
                 maybe_autocomplete(**opts)
               end
@@ -92,7 +93,12 @@ module SungradeWorkflow
           end
         end
 
+        def dispatchable?
+          ["rolling_back", "pending"].include?(status)
+        end
+
         def dispatch_and_make_available!(**opts)
+          return unless dispatchable?
           participant_dispatch!(**opts) do
             set(status: "dispatched")
           end

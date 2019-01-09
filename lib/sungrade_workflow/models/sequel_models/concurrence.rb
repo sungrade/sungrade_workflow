@@ -94,7 +94,12 @@ module SungradeWorkflow
           end
         end
 
+        def dispatchable?
+          ["rolling_back", "pending"].include?(status)
+        end
+
         def dispatch_and_make_available!(**opts)
+          return unless dispatchable?
           participant_dispatch!(**opts) do
             set(status: "dispatched")
           end

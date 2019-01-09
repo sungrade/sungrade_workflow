@@ -83,6 +83,7 @@ module SungradeWorkflow
         connection.transaction do
           Models::SequelModels::Concurrence.create(
             root_process_id: process.id,
+            status: :pending,
             position: position,
             participant_class: participant_class,
             **options_from(parent),
