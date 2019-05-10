@@ -8,6 +8,7 @@ Sequel.migration do
       Integer :position
       String :participant_class
       String :status
+      String :cursor
 
       foreign_key :procedure_id, :procedures, null: true, index: true
       foreign_key :process_id, :processes, null: true, index: true

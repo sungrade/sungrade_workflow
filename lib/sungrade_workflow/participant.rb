@@ -1,6 +1,6 @@
 module SungradeWorkflow
   class Participant
-    attr_reader :entity
+    attr_reader :entity, :process
 
     def initialize(entity:, process:, storage_model:)
       @entity = entity
@@ -9,7 +9,11 @@ module SungradeWorkflow
     end
 
     def auto_complete?
-      false
+      if @storage_model.respond_to?(:should_autocomplete?)
+        @storage_model.should_autocomplete?
+      else
+        false
+      end
     end
 
     def up(**)

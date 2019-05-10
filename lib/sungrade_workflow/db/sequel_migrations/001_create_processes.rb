@@ -9,6 +9,7 @@ Sequel.migration do
       String :entity_id, null: false
       String :entity_class, null: false
       String :identifier, null: false
+      String :cursor
       String :participant_class
       String :status
     end

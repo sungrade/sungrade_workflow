@@ -5,6 +5,7 @@ module SungradeWorkflow
         def concurrence?; false; end
         def procedure?; false; end
         def process?; false; end
+        def rollback_process?; false; end
         def task?; true; end
         def wait_for_event?; false; end
 

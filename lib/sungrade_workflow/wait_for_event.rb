@@ -16,18 +16,22 @@ module SungradeWorkflow
       participant.auto_complete?
     end
 
+    def process
+      storage_model.root_process.wrapper
+    end
+
     def participant
       @participant ||= begin
         if storage_model.participant_class
           Module.const_get(storage_model.participant_class).new(
             entity: storage_model.entity,
-            process: storage_model.root_process,
+            process: process,
             storage_model: storage_model
           )
         else
           Participant::AbstractWaitForEventParticipant.new(
             entity: storage_model.entity,
-            process: storage_model.root_process,
+            process: process,
             storage_model: storage_model
           )
         end

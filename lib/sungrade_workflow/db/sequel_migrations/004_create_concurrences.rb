@@ -9,6 +9,7 @@ Sequel.migration do
       Integer :count
       String :participant_class
       String :status
+      String :cursor
 
       foreign_key :concurrence_id, :concurrences, null: true, index: true
       foreign_key :procedure_id, :procedures, null: true, index: true

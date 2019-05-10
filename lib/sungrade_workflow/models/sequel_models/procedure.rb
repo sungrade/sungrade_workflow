@@ -58,7 +58,7 @@ module SungradeWorkflow
             participant_rollback!(**opts) do
               set(status: "rolling_back")
               children_after = children.select { |child| child.position > entity.position }
-              children_after.each { |child| rollback_from_parent!(**opts) }
+              children_after.each { |child| child.rollback_from_parent!(**opts) }
 
               if parent.process? && position == 0
                 parent.rollback_from_child!(self, rolling_back: true, **opts)
@@ -89,6 +89,52 @@ module SungradeWorkflow
               set(status: "rolling_back")
               children.each { |child| child.rollback_from_parent!(**opts) }
               set(status: "pending")
+            end
+          end
+        end
+
+        def target_for_rollback_process(to:, from:, original_from:)
+          return self if cursor == to
+          child_match = children.find { |child| child.cursor == to && child.position <= from.position }
+          return child_match if child_match
+          parent.target_for_rollback_process(to: to, from: self, original_from: original_from)
+        end
+
+        def rollback_to!(to:, from:, **opts)
+          self.class.db.transaction do
+            if self.cursor == to
+              children_before = children.select { |child| child.position < from.position }
+              children_before.each { |child| child.rollback_from_parent!(**opts) }
+            else
+              child_match = children.find { |child| child.cursor == to }
+              if child_match
+                children_between = children.select do |child|
+                  child.position > child_match.position && child.position < from.position
+                end
+                children_between.each { |child| child.rollback_from_parent!(**opts) }
+              else
+                participant_rollback!(**opts) do
+                  set(status: "rolling_back")
+                  children.each { |child| child.rollback_from_parent!(**opts) }
+                  parent.rollback_to!(to: to, from: self, **opts)
+
+                  if parent.process? && position == 0
+                    if parent.available?
+                      dispatch_and_make_available!(**opts)
+                    else
+                      set(status: "pending")
+                    end
+                  elsif parent.concurrence? && !parent.children_complete?
+                    if parent.available?
+                      dispatch_and_make_available!(**opts)
+                    else
+                      set(status: "pending")
+                    end
+                  else
+                    dispatch_and_make_available!(**opts)
+                  end
+                end
+              end
             end
           end
         end

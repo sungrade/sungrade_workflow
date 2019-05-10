@@ -33,6 +33,8 @@ module SungradeWorkflow
         procedure_builders.each(&:store!)
         concurrence_builders.each(&:store!)
         task_builders.each(&:store!)
+        wait_for_event_builders.each(&:store!)
+        rollback_process_builders.each(&:store!)
       end
 
       private
@@ -47,6 +49,14 @@ module SungradeWorkflow
 
       def task_builders
         @task_builders ||= []
+      end
+
+      def wait_for_event_builders
+        @wait_for_event_builders ||= []
+      end
+
+      def rollback_process_builders
+        @rollback_process_builders ||= []
       end
 
       def procedure(**opts, &blk)
@@ -81,7 +91,7 @@ module SungradeWorkflow
           name: name,
           **opts
         )
-        task_builders << instance
+        wait_for_event_builders << instance
         queue << instance
       end
 
@@ -93,7 +103,20 @@ module SungradeWorkflow
           name: name,
           **opts
         )
-        task_builders << instance
+        rollback_process_builders << instance
+        queue << instance
+      end
+
+      def rollback_process(name = nil, to:, **opts)
+        instance = RollbackProcess::Builder.new(
+          process: process,
+          procedure: model_instance,
+          position: queue.length,
+          name: name,
+          to: to,
+          **opts
+        )
+        rollback_process_builders << instance
         queue << instance
       end
 

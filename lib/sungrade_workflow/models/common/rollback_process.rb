@@ -1,24 +1,32 @@
 module SungradeWorkflow
   module Models
     module Common
-      module Process
+      module RollbackProcess
         def concurrence?; false; end
         def procedure?; false; end
-        def process?; true; end
-        def rollback_process?; false; end
+        def process?; false; end
+        def rollback_process?; true; end
         def task?; false; end
         def wait_for_event?; false; end
 
         def wrapper
-          @wrapper ||= ::SungradeWorkflow::Process.new(self)
+          @wrapper ||= ::SungradeWorkflow::RollbackProcess.new(self)
         end
 
         def participant
           wrapper.participant
         end
 
+        def started?
+          status == "started"
+        end
+
         def available?
           status == "available"
+        end
+
+        def complete?
+          status_complete? || skipped?
         end
 
         def skipped?
@@ -30,7 +38,11 @@ module SungradeWorkflow
         end
 
         def status_complete?
-          status == "complete" || skipped?
+          status == "complete"
+        end
+
+        def auto_complete?
+          wrapper.auto_complete?
         end
 
         def participant_dispatch!(**opts)

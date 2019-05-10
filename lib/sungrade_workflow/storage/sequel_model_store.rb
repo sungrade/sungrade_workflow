@@ -79,6 +79,21 @@ module SungradeWorkflow
         end
       end
 
+      def create_rollback_process(process:, procedure:, position:, name:, participant_class:, to:, **opts)
+        connection.transaction do
+          Models::SequelModels::RollbackProcess.create(
+            root_process_id: process.id,
+            position: position,
+            procedure: procedure,
+            name: name,
+            to: to,
+            participant_class: participant_class,
+            status: :pending,
+            **opts
+          )
+        end
+      end
+
       def create_concurrence(process:, parent:, position:, blk:, participant_class:, **opts)
         connection.transaction do
           Models::SequelModels::Concurrence.create(

@@ -9,6 +9,14 @@ module SungradeWorkflow
         end
       end
 
+      def clear!
+        @collection = {}
+      end
+
+      def begin!
+
+      end
+
       def add(name:, version:, blk:, participant:)
         if collection.key?(name)
           raise "Duplicate process definition for #{name}"

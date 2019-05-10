@@ -54,14 +54,14 @@ module SungradeWorkflow
         if storage_model.participant_class
           Module.const_get(storage_model.participant_class).new(
             entity: storage_model.entity,
-            process: storage_model,
-            storage_model: self
+            process: self,
+            storage_model: storage_model
           )
         else
           Participant::AbstractProcessParticipant.new(
             entity: storage_model.entity,
-            process: storage_model,
-            storage_model: self
+            process: self,
+            storage_model: storage_model
           )
         end
       end

@@ -1,11 +1,25 @@
-require_relative "concurrence/builder"
-
 module SungradeWorkflow
-  class Concurrence
+  class RollbackProcess
     attr_reader :storage_model
 
     def initialize(storage_model)
       @storage_model = storage_model
+    end
+
+    def complete(**args)
+      storage_model.complete!(**args)
+    end
+
+    def rollback(**args)
+      storage_model.rollback!(**args)
+    end
+
+    def auto_complete?
+      participant.auto_complete?
+    end
+
+    def to
+      storage_model.to
     end
 
     def process
@@ -18,16 +32,18 @@ module SungradeWorkflow
           Module.const_get(storage_model.participant_class).new(
             entity: storage_model.entity,
             process: process,
-            storage_model: self
+            storage_model: storage_model
           )
         else
-          Participant::AbstractConcurrenceParticipant.new(
+          Participant::AbstractRollbackProcessParticipant.new(
             entity: storage_model.entity,
             process: process,
-            storage_model: self
+            storage_model: storage_model
           )
         end
       end
     end
   end
 end
+
+require_relative "rollback_process/builder"

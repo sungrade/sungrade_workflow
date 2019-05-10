@@ -1,5 +1,6 @@
 module SungradeWorkflow
   class Configuration
+    attr_accessor :workflows_directory
     class << self
       def instance
         @instance ||= new
@@ -11,6 +12,10 @@ module SungradeWorkflow
 
       def validate!
         instance.validate!
+      end
+
+      def begin!
+        instance.begin!
       end
 
       def find_entity(id, klass)
@@ -26,11 +31,21 @@ module SungradeWorkflow
       @to_find_entity = blk
     end
 
+    def begin!
+      if workflows_directory
+        Dir.glob(
+          File.join(workflows_directory, "**/*.rb")
+        ) do |file|
+          load file
+        end
+      end
+    end
+
     def find_entity(id, klass)
       if @to_find_entity
         @to_find_entity.call(id, klass)
       else
-        Module.const_get(klass).find(id)
+        Module.const_get(klass).find(id: id)
       end
     end
 

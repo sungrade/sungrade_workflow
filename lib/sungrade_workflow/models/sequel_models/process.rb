@@ -74,6 +74,24 @@ module SungradeWorkflow
           end
         end
 
+        def target_for_rollback_process(to:, from:, original_from:)
+          return self if cursor == to
+          child_match = children.find { |child| child.cursor == to && child.position <= from.position }
+          return child_match if child_match
+          raise MissingCursor.new("No valid cursor found for #{to}")
+        end
+
+        def rollback_to!(to:, from:, **opts)
+          self.class.db.transaction do
+            if self.cursor == to
+              children_between = children.select do |child|
+                child.position > child_match.position && child.position < from.position
+              end
+              children_between.each { |child| child.rollback_from_parent!(**opts) }
+            end
+          end
+        end
+
         def set_entity(ent)
           @entity = ent
           unless entity_matches?(ent)

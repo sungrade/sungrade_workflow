@@ -3,7 +3,6 @@ PATH
   specs:
     sungrade_workflow (0.1.0)
       sequel
-      sequel_polymorphic
 
 GEM
   remote: https://rubygems.org/
@@ -29,8 +28,6 @@ GEM
       rspec-support (~> 3.8.0)
     rspec-support (3.8.0)
     sequel (5.13.0)
-    sequel_polymorphic (0.4.0)
-      sequel (>= 4.0.0, < 6)
 
 PLATFORMS
   ruby

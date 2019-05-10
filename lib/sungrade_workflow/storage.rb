@@ -41,6 +41,10 @@ module SungradeWorkflow
       current_storage.create_procedure(**args)
     end
 
+    def create_rollback_process(**args)
+      current_storage.create_rollback_process(**args)
+    end
+
     def create_task(**args)
       current_storage.create_task(**args)
     end
